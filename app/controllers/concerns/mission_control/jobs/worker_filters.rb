@@ -3,8 +3,6 @@ module MissionControl::Jobs::WorkerFilters
 
   included do
     before_action :set_filters
-
-    helper_method :active_filters?
   end
 
   private
