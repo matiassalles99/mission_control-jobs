@@ -21,7 +21,8 @@ module ActiveJob::QueueAdapters::SolidQueueExt::Workers
 
   private
     def solid_queue_processes_from_workers_relation(relation)
-      SolidQueue::Process.where(kind: "Worker").offset(relation.offset_value).limit(relation.limit_value)
+      conditions = { kind: "Worker" }.merge(filters_from_workers_relation(relation))
+      SolidQueue::Process.where(conditions).offset(relation.offset_value).limit(relation.limit_value)
     end
 
     def worker_from_solid_queue_process(process)
@@ -38,4 +39,11 @@ module ActiveJob::QueueAdapters::SolidQueueExt::Workers
         raw_data: process.as_json
       }
     end
+
+  def filters_from_workers_relation(relation)
+    {
+      pid: relation.name.presence,
+      hostname: relation.hostname.presence
+    }.compact
+  end
 end

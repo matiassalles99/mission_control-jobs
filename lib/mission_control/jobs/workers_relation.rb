@@ -6,7 +6,8 @@
 class MissionControl::Jobs::WorkersRelation
   include Enumerable
 
-  attr_accessor :offset_value, :limit_value
+  PROPERTIES = %i[ offset_value limit_value hostname name ]
+  attr_reader *PROPERTIES
 
   delegate :last, :[], :to_s, :reverse, to: :to_a
 
@@ -16,6 +17,16 @@ class MissionControl::Jobs::WorkersRelation
     @queue_adapter = queue_adapter
 
     set_defaults
+  end
+
+  def where(name: nil, hostname: nil)
+    # Remove nil arguments to avoid overriding parameters when concatenating +where+ clauses
+    arguments = {
+      hostname: hostname,
+      name: name
+    }.compact.collect { |key, value| [ key, value.to_s ] }.to_h
+
+    clone_with **arguments
   end
 
   def offset(offset)
@@ -51,6 +62,8 @@ class MissionControl::Jobs::WorkersRelation
   alias size count
 
   private
+    attr_writer *PROPERTIES
+
     def set_defaults
       self.offset_value = 0
       self.limit_value = ALL_WORKERS_LIMIT

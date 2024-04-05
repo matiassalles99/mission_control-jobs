@@ -1,4 +1,6 @@
 class MissionControl::Jobs::WorkersController < MissionControl::Jobs::ApplicationController
+  include MissionControl::Jobs::WorkerFilters
+
   before_action :ensure_exposed_workers
 
   def index
@@ -18,6 +20,6 @@ class MissionControl::Jobs::WorkersController < MissionControl::Jobs::Applicatio
     end
 
     def workers_relation
-      MissionControl::Jobs::Current.server.workers_relation
+      MissionControl::Jobs::Current.server.workers_relation.where(**@worker_filters)
     end
 end
